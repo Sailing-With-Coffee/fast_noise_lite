@@ -19,17 +19,14 @@ module noise
 //
 // VERSION: 0.0.1
 // source: https://github.com/Auburn/FastNoise
+const prime_x = 501125321
+const prime_y = 1136930381
+const prime_z = 1720413743
 
-const (
-	prime_x = 501125321
-	prime_y = 1136930381
-	prime_z = 1720413743
-
-	sqrt3   = 1.7320508075688772935274463415059
-	g2      = (3.0 - sqrt3) / 6
-	f2      = .5 * (sqrt3 - 1)
-	r3      = 2.0 / 3
-)
+const sqrt3 = 1.7320508075688772935274463415059
+const g2 = (3.0 - sqrt3) / 6
+const f2 = .5 * (sqrt3 - 1)
+const r3 = 2.0 / 3
 
 fn hash_2(seed int, x_primed int, y_primed int) int {
 	mut hash := powi(powi(seed, x_primed), y_primed)
@@ -193,7 +190,7 @@ pub enum DomainWarpType {
 	basic_grid
 }
 
-[params]
+@[params]
 pub struct FastNoiseConfig {
 	m_seed             int             = 1337
 	m_freqency         f64             = 0.01
@@ -202,21 +199,21 @@ pub struct FastNoiseConfig {
 	m_transform_type3d TransformType3D = TransformType3D.default_open_simplex2
 
 	m_fractal_type       FractalType = FractalType.@none
-	m_octaves            int = 3
-	m_lacunarity         f64 = 2.0
-	m_gain               f64 = 0.5
-	m_weighted_strength  f64 = 0.0
-	m_ping_pong_strength f64 = 2.0
+	m_octaves            int         = 3
+	m_lacunarity         f64         = 2.0
+	m_gain               f64         = 0.5
+	m_weighted_strength  f64         = 0.0
+	m_ping_pong_strength f64         = 2.0
 
 	m_fractal_bounding f64 = 1 / 1.75
 
 	m_cellular_distance_function CellularDistanceFunction = CellularDistanceFunction.euclidean_sq
 	m_cellular_return_type       CellularReturnType       = CellularReturnType.distance
-	m_cellular_jitter_modifier   f64 = 1.0
+	m_cellular_jitter_modifier   f64                      = 1.0
 
 	m_domain_warp_type      DomainWarpType  = DomainWarpType.open_simplex2
 	m_warp_transform_type3d TransformType3D = TransformType3D.default_open_simplex2
-	m_domain_warp_amp       f64 = 1.0
+	m_domain_warp_amp       f64             = 1.0
 
 	m_random_num_range bool
 }
@@ -330,24 +327,24 @@ pub fn (mut fast FastNoiseLite) set_domain_warp_amp(dwa f64) {
 // ```
 pub fn new_noise(c FastNoiseConfig) &FastNoiseLite {
 	return &FastNoiseLite{
-		m_seed: c.m_seed
-		m_freqency: c.m_freqency
-		m_noise_type: c.m_noise_type
-		m_rotation_type3d: c.m_rotation_type3d
-		m_transform_type3d: c.m_transform_type3d
-		m_fractal_type: c.m_fractal_type
-		m_octaves: c.m_octaves
-		m_lacunarity: c.m_lacunarity
-		m_gain: c.m_gain
-		m_weighted_strength: c.m_weighted_strength
-		m_ping_pong_strength: c.m_ping_pong_strength
-		m_fractal_bounding: c.m_fractal_bounding
+		m_seed:                       c.m_seed
+		m_freqency:                   c.m_freqency
+		m_noise_type:                 c.m_noise_type
+		m_rotation_type3d:            c.m_rotation_type3d
+		m_transform_type3d:           c.m_transform_type3d
+		m_fractal_type:               c.m_fractal_type
+		m_octaves:                    c.m_octaves
+		m_lacunarity:                 c.m_lacunarity
+		m_gain:                       c.m_gain
+		m_weighted_strength:          c.m_weighted_strength
+		m_ping_pong_strength:         c.m_ping_pong_strength
+		m_fractal_bounding:           c.m_fractal_bounding
 		m_cellular_distance_function: c.m_cellular_distance_function
-		m_cellular_return_type: c.m_cellular_return_type
-		m_cellular_jitter_modifier: c.m_cellular_jitter_modifier
-		m_domain_warp_type: c.m_domain_warp_type
-		m_warp_transform_type3d: c.m_warp_transform_type3d
-		m_domain_warp_amp: c.m_domain_warp_amp
+		m_cellular_return_type:       c.m_cellular_return_type
+		m_cellular_jitter_modifier:   c.m_cellular_jitter_modifier
+		m_domain_warp_type:           c.m_domain_warp_type
+		m_warp_transform_type3d:      c.m_warp_transform_type3d
+		m_domain_warp_amp:            c.m_domain_warp_amp
 	}
 }
 
@@ -417,7 +414,7 @@ fn (fast FastNoiseLite) transform_noise_coord_2(mut x &f64, mut y &f64) {
 
 	match fast.m_noise_type {
 		.open_simplex2, .open_simplex2s {
-			t := (*x + *y) * noise.f2
+			t := (*x + *y) * f2
 			x += t
 			y += t
 		}
@@ -448,7 +445,7 @@ fn (fast FastNoiseLite) transform_noise_coord_3(mut x &f64, mut y &f64, mut z &f
 			y += xz * 0.577350269189626
 		}
 		.default_open_simplex2 {
-			r := (*x + *y + *z) * noise.r3
+			r := (*x + *y + *z) * r3
 			x = r - x
 			y = r - y
 			z = r - z
@@ -510,10 +507,10 @@ fn (fast FastNoiseLite) gen_fractal_fbm_2(xx f64, yy f64) f64 {
 	mut amp := fast.m_fractal_bounding
 
 	for _ in 0 .. fast.m_octaves {
-		noise := fast.gen_noise_single_2(seed, x, y)
+		noice := fast.gen_noise_single_2(seed, x, y)
 		seed++
-		sum += noise * amp
-		amp *= lerp(1.0, fast_min(noise + 1, 2) * .5, fast.m_weighted_strength)
+		sum += noice * amp
+		amp *= lerp(1.0, fast_min(noice + 1, 2) * .5, fast.m_weighted_strength)
 
 		x *= fast.m_lacunarity
 		y *= fast.m_lacunarity
@@ -529,10 +526,10 @@ fn (fast FastNoiseLite) gen_fractal_fbm_3(xx f64, yy f64, zz f64) f64 {
 	mut amp := fast.m_fractal_bounding
 
 	for _ in 0 .. fast.m_octaves {
-		noise := fast.gen_noise_single_3(seed, x, y, z)
+		noice := fast.gen_noise_single_3(seed, x, y, z)
 		seed++
-		sum += noise * amp
-		amp *= lerp(1.0, (noise + 1) * .5, fast.m_weighted_strength)
+		sum += noice * amp
+		amp *= lerp(1.0, (noice + 1) * .5, fast.m_weighted_strength)
 
 		x *= fast.m_lacunarity
 		y *= fast.m_lacunarity
@@ -549,10 +546,10 @@ fn (fast FastNoiseLite) gen_fractal_ridged_2(xx f64, yy f64) f64 {
 	mut amp := fast.m_fractal_bounding
 
 	for _ in 0 .. fast.m_octaves {
-		noise := fast_abs(fast.gen_noise_single_2(seed, x, y))
+		noice := fast_abs(fast.gen_noise_single_2(seed, x, y))
 		seed++
-		sum += (noise * -2 + 1) * amp
-		amp *= lerp(1.0, 1 - noise, fast.m_weighted_strength)
+		sum += (noice * -2 + 1) * amp
+		amp *= lerp(1.0, 1 - noice, fast.m_weighted_strength)
 
 		x *= fast.m_lacunarity
 		y *= fast.m_lacunarity
@@ -569,10 +566,10 @@ fn (fast FastNoiseLite) gen_fractal_ridged_3(xx f64, yy f64, zz f64) f64 {
 	mut amp := fast.m_fractal_bounding
 
 	for _ in 0 .. fast.m_octaves {
-		noise := fast_abs(fast.gen_noise_single_3(seed, x, y, z))
+		noice := fast_abs(fast.gen_noise_single_3(seed, x, y, z))
 		seed++
-		sum += (noise * -2 + 1) * amp
-		amp *= lerp(1.0, 1 - noise, fast.m_weighted_strength)
+		sum += (noice * -2 + 1) * amp
+		amp *= lerp(1.0, 1 - noice, fast.m_weighted_strength)
 
 		x *= fast.m_lacunarity
 		y *= fast.m_lacunarity
@@ -590,10 +587,10 @@ fn (fast FastNoiseLite) gen_fractal_ping_pong_2(xx f64, yy f64) f64 {
 	mut amp := fast.m_fractal_bounding
 
 	for _ in 0 .. fast.m_octaves {
-		noise := ping_pong((fast.gen_noise_single_2(seed, x, y) + 1) * fast.m_ping_pong_strength)
+		noice := ping_pong((fast.gen_noise_single_2(seed, x, y) + 1) * fast.m_ping_pong_strength)
 		seed++
-		sum += (noise - 0.5) * 2 * amp
-		amp *= lerp(1.0, noise, fast.m_weighted_strength)
+		sum += (noice - 0.5) * 2 * amp
+		amp *= lerp(1.0, noice, fast.m_weighted_strength)
 
 		x *= fast.m_lacunarity
 		y *= fast.m_lacunarity
@@ -610,10 +607,10 @@ fn (fast FastNoiseLite) gen_fractal_ping_pong_3(xx f64, yy f64, zz f64) f64 {
 	mut amp := fast.m_fractal_bounding
 
 	for _ in 0 .. fast.m_octaves {
-		noise := ping_pong((fast.gen_noise_single_3(seed, x, y, z) + 1) * fast.m_ping_pong_strength)
+		noice := ping_pong((fast.gen_noise_single_3(seed, x, y, z) + 1) * fast.m_ping_pong_strength)
 		seed++
-		sum += (noise - 0.5) * 2 * amp
-		amp *= lerp(1.0, noise, fast.m_weighted_strength)
+		sum += (noice - 0.5) * 2 * amp
+		amp *= lerp(1.0, noice, fast.m_weighted_strength)
 
 		x *= fast.m_lacunarity
 		y *= fast.m_lacunarity
@@ -630,12 +627,12 @@ fn (fast FastNoiseLite) single_simplex(seed int, x f64, y f64) f64 {
 	xi := f64(x - i)
 	yi := f64(y - j)
 
-	t := (xi + yi) * noise.g2
+	t := (xi + yi) * g2
 	x0 := xi - t
 	y0 := yi - t
 
-	i *= noise.prime_x
-	j *= noise.prime_y
+	i *= prime_x
+	j *= prime_y
 
 	mut n0, mut n1, mut n2 := f64(0), f64(0), f64(0)
 
@@ -644,28 +641,26 @@ fn (fast FastNoiseLite) single_simplex(seed int, x f64, y f64) f64 {
 		n0 = (a * a) * (a * a) * grad_coord_2(seed, i, j, x0, y0)
 	}
 
-	c := f64(2 * (1 - 2 * noise.g2) * (1 / noise.g2 - 2)) * t +
-		(f64(-2 * (1 - 2 * noise.g2) * (1 - 2 * noise.g2)) + a)
+	c := f64(2 * (1 - 2 * g2) * (1 / g2 - 2)) * t + (f64(-2 * (1 - 2 * g2) * (1 - 2 * g2)) + a)
 	if c > 0 {
-		x2 := x0 + (2 * noise.g2 - 1)
-		y2 := y0 + (2 * noise.g2 - 1)
-		n2 = (c * c) * (c * c) * grad_coord_2(seed, i + noise.prime_x, j + noise.prime_y,
-			x2, y2)
+		x2 := x0 + (2 * g2 - 1)
+		y2 := y0 + (2 * g2 - 1)
+		n2 = (c * c) * (c * c) * grad_coord_2(seed, i + prime_x, j + prime_y, x2, y2)
 	}
 
 	if y0 > x0 {
-		x1 := x0 + noise.g2
-		y1 := y0 + (noise.g2 - 1)
+		x1 := x0 + g2
+		y1 := y0 + (g2 - 1)
 		b := .5 - x1 * x1 - y1 * y1
 		if b > 0 {
-			n1 = (b * b) * (b * b) * grad_coord_2(seed, i, j + noise.prime_y, x1, y1)
+			n1 = (b * b) * (b * b) * grad_coord_2(seed, i, j + prime_y, x1, y1)
 		}
 	} else {
-		x1 := x0 + (noise.g2 - 1)
-		y1 := y0 + noise.g2
+		x1 := x0 + (g2 - 1)
+		y1 := y0 + g2
 		b := .5 - x1 * x1 - y1 * y1
 		if b > 0 {
-			n1 = (b * b) * (b * b) * grad_coord_2(seed, i + noise.prime_x, j, x1, y1)
+			n1 = (b * b) * (b * b) * grad_coord_2(seed, i + prime_x, j, x1, y1)
 		}
 	}
 
@@ -686,96 +681,95 @@ fn (fast FastNoiseLite) single_open_simplex2s_2(seed int, x f64, y f64) f64 {
 	xi := x - i
 	yi := y - j
 
-	i *= noise.prime_x
-	j *= noise.prime_y
-	i1 := i + noise.prime_x
-	j1 := j + noise.prime_y
+	i *= prime_x
+	j *= prime_y
+	i1 := i + prime_x
+	j1 := j + prime_y
 
-	t := (xi + yi) * noise.g2
+	t := (xi + yi) * g2
 	x0 := xi - t
 	y0 := yi - t
 
 	a0 := (2.0 / 3.0) - x0 * x0 - y0 * y0
 	mut value := (a0 * a0) * (a0 * a0) * grad_coord_2(seed, i, j, x0, y0)
 
-	a1 := f64(2 * (1 - 2 * noise.g2) * (1 / noise.g2 - 2)) * t +
-		(f64(-2 * (1 - 2 * noise.g2) * (1 - 2 * noise.g2)) + a0)
-	x1 := x0 - f64(1 - 2 * noise.g2)
-	y1 := y0 - f64(1 - 2 * noise.g2)
+	a1 := f64(2 * (1 - 2 * g2) * (1 / g2 - 2)) * t + (f64(-2 * (1 - 2 * g2) * (1 - 2 * g2)) + a0)
+	x1 := x0 - f64(1 - 2 * g2)
+	y1 := y0 - f64(1 - 2 * g2)
 	value += (a1 * a1) * (a1 * a1) * grad_coord_2(seed, i1, j1, x1, y1)
 
 	// Nested conditionals were faster than compact bit logic/arithmetic.
 	xmyi := xi - yi
-	if t > noise.g2 {
+	if t > g2 {
 		if xi + xmyi > 1 {
-			x2 := x0 + f64(3 * noise.g2 - 2)
-			y2 := y0 + f64(3 * noise.g2 - 1)
+			x2 := x0 + f64(3 * g2 - 2)
+			y2 := y0 + f64(3 * g2 - 1)
 			a2 := (2.0 / 3.0) - x2 * x2 - y2 * y2
 			if a2 > 0 {
-				value += (a2 * a2) * (a2 * a2) * grad_coord_2(seed, i + (noise.prime_x << 1),
-					j + noise.prime_y, x2, y2)
+				value += (a2 * a2) * (a2 * a2) * grad_coord_2(seed, i + (prime_x << 1),
+					j + prime_y, x2, y2)
 			}
 		} else {
-			x2 := x0 + noise.g2
-			y2 := y0 + f64(noise.g2 - 1)
+			x2 := x0 + g2
+			y2 := y0 + f64(g2 - 1)
 			a2 := (2.0 / 3.0) - x2 * x2 - y2 * y2
 			if a2 > 0 {
-				value += (a2 * a2) * (a2 * a2) * grad_coord_2(seed, i, j + noise.prime_y,
-					x2, y2)
+				value += (a2 * a2) * (a2 * a2) * grad_coord_2(seed, i, j + prime_y, x2,
+					y2)
 			}
 		}
 
 		if yi - xmyi > 1 {
-			x3 := x0 + f64(3 * noise.g2 - 1)
-			y3 := y0 + f64(3 * noise.g2 - 2)
+			x3 := x0 + f64(3 * g2 - 1)
+			y3 := y0 + f64(3 * g2 - 2)
 			a3 := (2.0 / 3.0) - x3 * x3 - y3 * y3
 			if a3 > 0 {
-				value += (a3 * a3) * (a3 * a3) * grad_coord_2(seed, i + noise.prime_x,
-					j + (noise.prime_y << 1), x3, y3)
+				value += (a3 * a3) * (a3 * a3) * grad_coord_2(seed, i + prime_x, j + (prime_y << 1),
+					x3, y3)
 			}
 		} else {
-			x3 := x0 + f64(noise.g2 - 1)
-			y3 := y0 + noise.g2
+			x3 := x0 + f64(g2 - 1)
+			y3 := y0 + g2
 			a3 := (2.0 / 3.0) - x3 * x3 - y3 * y3
 			if a3 > 0 {
-				value += (a3 * a3) * (a3 * a3) * grad_coord_2(seed, i + noise.prime_x,
-					j, x3, y3)
+				value += (a3 * a3) * (a3 * a3) * grad_coord_2(seed, i + prime_x, j, x3,
+					y3)
 			}
 		}
 	} else {
 		if xi + xmyi < 0 {
-			x2 := x0 + f64(1 - noise.g2)
-			y2 := y0 - noise.g2
+			x2 := x0 + f64(1 - g2)
+			y2 := y0 - g2
 			a2 := (2.0 / 3.0) - x2 * x2 - y2 * y2
 			if a2 > 0 {
-				value += (a2 * a2) * (a2 * a2) * grad_coord_2(seed, i - noise.prime_x,
-					j, x2, y2)
+				value += (a2 * a2) * (a2 * a2) * grad_coord_2(seed, i - prime_x, j, x2,
+					y2)
 			}
 		} else {
-			x2 := x0 + f64(noise.g2 - 1)
-			y2 := y0 + noise.g2
+			x2 := x0 + f64(g2 - 1)
+			y2 := y0 + g2
 			a2 := (2.0 / 3.0) - x2 * x2 - y2 * y2
 			if a2 > 0 {
-				value += (a2 * a2) * (a2 * a2) * grad_coord_2(seed, i + noise.prime_x,
-					j, x2, y2)
+				value += (a2 * a2) * (a2 * a2) * grad_coord_2(seed, i + prime_x, j, x2,
+					y2)
 			}
 		}
 
 		if yi < xmyi {
-			x2 := x0 - noise.g2
-			y2 := y0 - f64(noise.g2 - 1)
+			x2 := x0 - g2
+			y2 := y0 - f64(g2 - 1)
 			a2 := (2.0 / 3.0) - x2 * x2 - y2 * y2
 			if a2 > 0 {
-				value += (a2 * a2) * (a2 * a2) * grad_coord_2(seed, i, j - noise.prime_y,
-					x2, y2)
+				value += (a2 * a2) * (a2 * a2) * grad_coord_2(seed, i, j - prime_y, x2,
+					y2)
 			}
 		} else {
-			x2 := x0 + noise.g2
-			y2 := y0 + f64(noise.g2 - 1)
+			x2 := x0 + g2
+			y2 := y0 + f64(g2 - 1)
 			a2 := (2.0 / 3.0) - x2 * x2 - y2 * y2
 			if a2 > 0 {
-				value += (a2 * a2) * (a2 * a2) * grad_coord_2(seed, i, j + noise.prime_y,
-					x2, y2)
+				value += (a2 * a2) * (a2 * a2) * grad_coord_2(seed, i, j + prime_y, x2,
+					y2)
 			}
 		}
 	}
@@ -799,9 +793,9 @@ fn (fast FastNoiseLite) single_open_simplex2s_3(seed int, x f64, y f64, z f64) f
 	yi := y - j
 	zi := z - k
 
-	i *= noise.prime_x
-	j *= noise.prime_y
-	k *= noise.prime_z
+	i *= prime_x
+	j *= prime_y
+	k *= prime_z
 	seed2 := seed + 1293373
 
 	x_n_mask := int(-0.5 - xi)
@@ -812,15 +806,15 @@ fn (fast FastNoiseLite) single_open_simplex2s_3(seed int, x f64, y f64, z f64) f
 	y0 := yi + y_n_mask
 	z0 := zi + z_n_mask
 	a0 := 0.75 - x0 * x0 - y0 * y0 - z0 * z0
-	mut value := (a0 * a0) * (a0 * a0) * grad_coord_3(seed, i + (x_n_mask & noise.prime_x),
-		j + (y_n_mask & noise.prime_y), k + (z_n_mask & noise.prime_z), x0, y0, z0)
+	mut value := (a0 * a0) * (a0 * a0) * grad_coord_3(seed, i + (x_n_mask & prime_x),
+		j + (y_n_mask & prime_y), k + (z_n_mask & prime_z), x0, y0, z0)
 
 	x1 := xi - 0.5
 	y1 := yi - 0.5
 	z1 := zi - 0.5
 	a1 := 0.75 - x1 * x1 - y1 * y1 - z1 * z1
-	value += (a1 * a1) * (a1 * a1) * grad_coord_3(seed2, i + noise.prime_x, j + noise.prime_y,
-		k + noise.prime_z, x1, y1, z1)
+	value += (a1 * a1) * (a1 * a1) * grad_coord_3(seed2, i + prime_x, j + prime_y, k + prime_z,
+		x1, y1, z1)
 
 	x_a_flip_mask_0 := ((u32(x_n_mask) | 1) << 1) * x1
 	y_a_flip_mask_0 := ((u32(y_n_mask) | 1) << 1) * y1
@@ -835,17 +829,16 @@ fn (fast FastNoiseLite) single_open_simplex2s_3(seed int, x f64, y f64, z f64) f
 		x2 := x0 - (x_n_mask | 1)
 		y2 := y0
 		z2 := z0
-		value += (a2 * a2) * (a2 * a2) * grad_coord_3(seed, i + (~x_n_mask & noise.prime_x),
-			j + (y_n_mask & noise.prime_y), k + (z_n_mask & noise.prime_z), x2, y2, z2)
+		value += (a2 * a2) * (a2 * a2) * grad_coord_3(seed, i + (~x_n_mask & prime_x),
+			j + (y_n_mask & prime_y), k + (z_n_mask & prime_z), x2, y2, z2)
 	} else {
 		a3 := y_a_flip_mask_0 + z_a_flip_mask_0 + a0
 		if a3 > 0 {
 			x3 := x0
 			y3 := y0 - (y_n_mask | 1)
 			z3 := z0 - (z_n_mask | 1)
-			value += (a3 * a3) * (a3 * a3) * grad_coord_3(seed, i + (x_n_mask & noise.prime_x),
-				j + (~y_n_mask & noise.prime_y), k + (~z_n_mask & noise.prime_z), x3,
-				y3, z3)
+			value += (a3 * a3) * (a3 * a3) * grad_coord_3(seed, i + (x_n_mask & prime_x),
+				j + (~y_n_mask & prime_y), k + (~z_n_mask & prime_z), x3, y3, z3)
 		}
 
 		a4 := x_a_flip_mask_1 + a1
@@ -853,9 +846,8 @@ fn (fast FastNoiseLite) single_open_simplex2s_3(seed int, x f64, y f64, z f64) f
 			x4 := (x_n_mask | 1) + x1
 			y4 := y1
 			z4 := z1
-			value += (a4 * a4) * (a4 * a4) * grad_coord_3(seed2, i +
-				(x_n_mask & (noise.prime_x * 2)), j + noise.prime_y, k + noise.prime_z,
-				x4, y4, z4)
+			value += (a4 * a4) * (a4 * a4) * grad_coord_3(seed2, i + (x_n_mask & (prime_x * 2)),
+				j + prime_y, k + prime_z, x4, y4, z4)
 			skip5 = true
 		}
 	}
@@ -866,17 +858,16 @@ fn (fast FastNoiseLite) single_open_simplex2s_3(seed int, x f64, y f64, z f64) f
 		x6 := x0
 		y6 := y0 - (y_n_mask | 1)
 		z6 := z0
-		value += (a6 * a6) * (a6 * a6) * grad_coord_3(seed, i + (x_n_mask & noise.prime_x),
-			j + (~y_n_mask & noise.prime_y), k + (z_n_mask & noise.prime_z), x6, y6, z6)
+		value += (a6 * a6) * (a6 * a6) * grad_coord_3(seed, i + (x_n_mask & prime_x),
+			j + (~y_n_mask & prime_y), k + (z_n_mask & prime_z), x6, y6, z6)
 	} else {
 		a7 := x_a_flip_mask_0 + z_a_flip_mask_0 + a0
 		if a7 > 0 {
 			x7 := x0 - (x_n_mask | 1)
 			y7 := y0
 			z7 := z0 - (z_n_mask | 1)
-			value += (a7 * a7) * (a7 * a7) * grad_coord_3(seed, i + (~x_n_mask & noise.prime_x),
-				j + (y_n_mask & noise.prime_y), k + (~z_n_mask & noise.prime_z), x7, y7,
-				z7)
+			value += (a7 * a7) * (a7 * a7) * grad_coord_3(seed, i + (~x_n_mask & prime_x),
+				j + (y_n_mask & prime_y), k + (~z_n_mask & prime_z), x7, y7, z7)
 		}
 
 		a8 := y_a_flip_mask_1 + a1
@@ -884,8 +875,8 @@ fn (fast FastNoiseLite) single_open_simplex2s_3(seed int, x f64, y f64, z f64) f
 			x8 := x1
 			y8 := (y_n_mask | 1) + y1
 			z8 := z1
-			value += (a8 * a8) * (a8 * a8) * grad_coord_3(seed2, i + noise.prime_x, j +
-				(y_n_mask & (noise.prime_y << 1)), k + noise.prime_z, x8, y8, z8)
+			value += (a8 * a8) * (a8 * a8) * grad_coord_3(seed2, i + prime_x, j +
+				(y_n_mask & (prime_y << 1)), k + prime_z, x8, y8, z8)
 			skip9 = true
 		}
 	}
@@ -896,18 +887,16 @@ fn (fast FastNoiseLite) single_open_simplex2s_3(seed int, x f64, y f64, z f64) f
 		x_ba := x0
 		y_ba := y0
 		z_ba := z0 - (z_n_mask | 1)
-		value += (a_ba * a_ba) * (a_ba * a_ba) * grad_coord_3(seed, i + (x_n_mask & noise.prime_x),
-			j + (y_n_mask & noise.prime_y), k + (~z_n_mask & noise.prime_z), x_ba, y_ba,
-			z_ba)
+		value += (a_ba * a_ba) * (a_ba * a_ba) * grad_coord_3(seed, i + (x_n_mask & prime_x),
+			j + (y_n_mask & prime_y), k + (~z_n_mask & prime_z), x_ba, y_ba, z_ba)
 	} else {
 		a_bb := x_a_flip_mask_0 + y_a_flip_mask_0 + a0
 		if a_bb > 0 {
 			x_bb := x0 - (x_n_mask | 1)
 			y_bb := y0 - (y_n_mask | 1)
 			z_bb := z0
-			value += (a_bb * a_bb) * (a_bb * a_bb) * grad_coord_3(seed, i +
-				(~x_n_mask & noise.prime_x), j + (~y_n_mask & noise.prime_y), k +
-				(z_n_mask & noise.prime_z), x_bb, y_bb, z_bb)
+			value += (a_bb * a_bb) * (a_bb * a_bb) * grad_coord_3(seed, i + (~x_n_mask & prime_x),
+				j + (~y_n_mask & prime_y), k + (z_n_mask & prime_z), x_bb, y_bb, z_bb)
 		}
 
 		a_bc := z_a_flip_mask_1 + a1
@@ -915,8 +904,8 @@ fn (fast FastNoiseLite) single_open_simplex2s_3(seed int, x f64, y f64, z f64) f
 			x_c := x1
 			y_c := y1
 			z_c := (z_n_mask | 1) + z1
-			value += (a_bc * a_bc) * (a_bc * a_bc) * grad_coord_3(seed2, i + noise.prime_x,
-				j + noise.prime_y, k + (z_n_mask & (noise.prime_z << 1)), x_c, y_c, z_c)
+			value += (a_bc * a_bc) * (a_bc * a_bc) * grad_coord_3(seed2, i + prime_x,
+				j + prime_y, k + (z_n_mask & (prime_z << 1)), x_c, y_c, z_c)
 			skip_bd = true
 		}
 	}
@@ -927,9 +916,9 @@ fn (fast FastNoiseLite) single_open_simplex2s_3(seed int, x f64, y f64, z f64) f
 			x5 := x1
 			y5 := (y_n_mask | 1) + y1
 			z5 := (z_n_mask | 1) + z1
-			value += (a5 * a5) * (a5 * a5) * grad_coord_3(seed2, i + noise.prime_x, j +
-				(y_n_mask & (noise.prime_y << 1)), k + (z_n_mask & (noise.prime_z << 1)),
-				x5, y5, z5)
+			value += (a5 * a5) * (a5 * a5) * grad_coord_3(seed2, i + prime_x, j +
+				(y_n_mask & (prime_y << 1)), k + (z_n_mask & (prime_z << 1)), x5, y5,
+				z5)
 		}
 	}
 
@@ -939,9 +928,8 @@ fn (fast FastNoiseLite) single_open_simplex2s_3(seed int, x f64, y f64, z f64) f
 			x9 := (x_n_mask | 1) + x1
 			y9 := y1
 			z9 := (z_n_mask | 1) + z1
-			value += (a9 * a9) * (a9 * a9) * grad_coord_3(seed2, i +
-				(x_n_mask & (noise.prime_x * 2)), j + noise.prime_y, k +
-				(z_n_mask & (noise.prime_z << 1)), x9, y9, z9)
+			value += (a9 * a9) * (a9 * a9) * grad_coord_3(seed2, i + (x_n_mask & (prime_x * 2)),
+				j + prime_y, k + (z_n_mask & (prime_z << 1)), x9, y9, z9)
 		}
 	}
 
@@ -952,8 +940,8 @@ fn (fast FastNoiseLite) single_open_simplex2s_3(seed int, x f64, y f64, z f64) f
 			y_d := (y_n_mask | 1) + y1
 			z_d := z1
 			value += (a_bd * a_bd) * (a_bd * a_bd) * grad_coord_3(seed2, i +
-				(x_n_mask & (noise.prime_x << 1)), j + (y_n_mask & (noise.prime_y << 1)),
-				k + noise.prime_z, x_d, y_d, z_d)
+				(x_n_mask & (prime_x << 1)), j + (y_n_mask & (prime_y << 1)), k + prime_z,
+				x_d, y_d, z_d)
 		}
 	}
 
@@ -984,9 +972,9 @@ fn (fast FastNoiseLite) single_open_simplex2(s int, x f64, y f64, z f64) f64 {
 	mut ay0 := y_n_sign * -y0
 	mut az0 := z_n_sign * -z0
 
-	i *= noise.prime_x
-	j *= noise.prime_y
-	k *= noise.prime_z
+	i *= prime_x
+	j *= prime_y
+	k *= prime_z
 
 	mut value := 0.0
 	mut a := (0.6 - x0 * x0) - (y0 * y0 + z0 * z0)
@@ -1007,15 +995,15 @@ fn (fast FastNoiseLite) single_open_simplex2(s int, x f64, y f64, z f64) f64 {
 		if ax0 >= ay0 && ax0 >= az0 {
 			x1 += x_n_sign
 			b -= x_n_sign * 2 * x1
-			i1 -= x_n_sign * noise.prime_x
+			i1 -= x_n_sign * prime_x
 		} else if ay0 > ax0 && ay0 >= az0 {
 			y1 += y_n_sign
 			b -= y_n_sign * 2 * y1
-			j1 -= y_n_sign * noise.prime_y
+			j1 -= y_n_sign * prime_y
 		} else {
 			z1 += z_n_sign
 			b -= z_n_sign * 2 * z1
-			k1 -= z_n_sign * noise.prime_z
+			k1 -= z_n_sign * prime_z
 		}
 
 		if b > 0 {
@@ -1036,9 +1024,9 @@ fn (fast FastNoiseLite) single_open_simplex2(s int, x f64, y f64, z f64) f64 {
 
 		a += (0.75 - ax0) - (ay0 + az0)
 
-		i += (x_n_sign >> 1) & noise.prime_x
-		j += (y_n_sign >> 1) & noise.prime_y
-		k += (z_n_sign >> 1) & noise.prime_z
+		i += (x_n_sign >> 1) & prime_x
+		j += (y_n_sign >> 1) & prime_y
+		k += (z_n_sign >> 1) & prime_z
 
 		x_n_sign = -x_n_sign
 		y_n_sign = -y_n_sign
@@ -1060,8 +1048,8 @@ fn (fast FastNoiseLite) single_cellular_2(seed int, x f64, y f64) f64 {
 
 	cellular_jitter := 0.43701595 * fast.m_cellular_jitter_modifier
 
-	mut x_primed := int((xr - 1) * noise.prime_x)
-	y_primed_base := int((yr - 1) * noise.prime_y)
+	mut x_primed := int((xr - 1) * prime_x)
+	y_primed_base := int((yr - 1) * prime_y)
 
 	match fast.m_cellular_distance_function {
 		.manhattan {
@@ -1082,9 +1070,9 @@ fn (fast FastNoiseLite) single_cellular_2(seed int, x f64, y f64) f64 {
 						distance0 = new_distance
 						closest_hash = hash
 					}
-					y_primed += noise.prime_y
+					y_primed += prime_y
 				}
-				x_primed += noise.prime_x
+				x_primed += prime_x
 			}
 		}
 		.hybrid {
@@ -1106,9 +1094,9 @@ fn (fast FastNoiseLite) single_cellular_2(seed int, x f64, y f64) f64 {
 						distance0 = new_distance
 						closest_hash = hash
 					}
-					y_primed += noise.prime_y
+					y_primed += prime_y
 				}
-				x_primed += noise.prime_x
+				x_primed += prime_x
 			}
 		}
 		else { // euclidean, euclidean_sq
@@ -1129,9 +1117,9 @@ fn (fast FastNoiseLite) single_cellular_2(seed int, x f64, y f64) f64 {
 						distance0 = new_distance
 						closest_hash = hash
 					}
-					y_primed += noise.prime_y
+					y_primed += prime_y
 				}
-				x_primed += noise.prime_x
+				x_primed += prime_x
 			}
 		}
 	}
@@ -1181,9 +1169,9 @@ fn (fast FastNoiseLite) single_cellular_3(seed int, x f64, y f64, z f64) f64 {
 
 	cellular_jitter := 0.39614353 * fast.m_cellular_jitter_modifier
 
-	mut x_primed := int((xr - 1) * noise.prime_x)
-	y_primed_base := int((yr - 1) * noise.prime_y)
-	z_primed_base := int((zr - 1) * noise.prime_z)
+	mut x_primed := int((xr - 1) * prime_x)
+	y_primed_base := int((yr - 1) * prime_y)
+	z_primed_base := int((zr - 1) * prime_z)
 
 	match fast.m_cellular_distance_function {
 		.euclidean, .euclidean_sq {
@@ -1208,11 +1196,11 @@ fn (fast FastNoiseLite) single_cellular_3(seed int, x f64, y f64, z f64) f64 {
 							distance0 = new_distance
 							closest_hash = hash
 						}
-						z_primed += noise.prime_z
+						z_primed += prime_z
 					}
-					y_primed += noise.prime_y
+					y_primed += prime_y
 				}
-				x_primed += noise.prime_x
+				x_primed += prime_x
 			}
 		}
 		.manhattan {
@@ -1237,11 +1225,11 @@ fn (fast FastNoiseLite) single_cellular_3(seed int, x f64, y f64, z f64) f64 {
 							distance0 = new_distance
 							closest_hash = hash
 						}
-						z_primed += noise.prime_z
+						z_primed += prime_z
 					}
-					y_primed += noise.prime_y
+					y_primed += prime_y
 				}
-				x_primed += noise.prime_x
+				x_primed += prime_x
 			}
 		}
 		.hybrid {
@@ -1267,11 +1255,11 @@ fn (fast FastNoiseLite) single_cellular_3(seed int, x f64, y f64, z f64) f64 {
 							distance0 = new_distance
 							closest_hash = hash
 						}
-						z_primed += noise.prime_z
+						z_primed += prime_z
 					}
-					y_primed += noise.prime_y
+					y_primed += prime_y
 				}
-				x_primed += noise.prime_x
+				x_primed += prime_x
 			}
 		}
 	}
@@ -1322,10 +1310,10 @@ fn (fast FastNoiseLite) single_perlin_2(seed int, x f64, y f64) f64 {
 	xs := interp_quintic(xd0)
 	ys := interp_quintic(yd0)
 
-	x0 *= noise.prime_x
-	y0 *= noise.prime_y
-	x1 := x0 + noise.prime_x
-	y1 := y0 + noise.prime_y
+	x0 *= prime_x
+	y0 *= prime_y
+	x1 := x0 + prime_x
+	y1 := y0 + prime_y
 
 	xf0 := lerp(grad_coord_2(seed, x0, y0, xd0, yd0), grad_coord_2(seed, x1, y0, xd1,
 		yd0), xs)
@@ -1351,12 +1339,12 @@ fn (fast FastNoiseLite) single_perlin_3(seed int, x f64, y f64, z f64) f64 {
 	ys := interp_quintic(yd0)
 	zs := interp_quintic(zd0)
 
-	x0 *= noise.prime_x
-	y0 *= noise.prime_y
-	z0 *= noise.prime_z
-	x1 := x0 + noise.prime_x
-	y1 := y0 + noise.prime_y
-	z1 := z0 + noise.prime_z
+	x0 *= prime_x
+	y0 *= prime_y
+	z0 *= prime_z
+	x1 := x0 + prime_x
+	y1 := y0 + prime_y
+	z1 := z0 + prime_z
 
 	xf00 := lerp(grad_coord_3(seed, x0, y0, z0, xd0, yd0, zd0), grad_coord_3(seed, x1,
 		y0, z0, xd1, yd0, zd0), xs)
@@ -1380,15 +1368,15 @@ fn (fast FastNoiseLite) single_value_cubic_2(seed int, x f64, y f64) f64 {
 	xs := x - x1
 	ys := y - y1
 
-	x1 *= noise.prime_x
-	y1 *= noise.prime_y
+	x1 *= prime_x
+	y1 *= prime_y
 
-	x0 := x1 - noise.prime_x
-	y0 := y1 - noise.prime_y
-	x2 := x1 + noise.prime_x
-	y2 := y1 + noise.prime_y
-	x3 := x1 + int(noise.prime_x << 1)
-	y3 := y1 + int(noise.prime_y << 1)
+	x0 := x1 - prime_x
+	y0 := y1 - prime_y
+	x2 := x1 + prime_x
+	y2 := y1 + prime_y
+	x3 := x1 + int(prime_x << 1)
+	y3 := y1 + int(prime_y << 1)
 
 	return cubic_lerp(cubic_lerp(val_coord_2(seed, x0, y0), val_coord_2(seed, x1, y0),
 		val_coord_2(seed, x2, y0), val_coord_2(seed, x3, y0), xs), cubic_lerp(val_coord_2(seed,
@@ -1408,19 +1396,19 @@ fn (fast FastNoiseLite) single_value_cubic_3(seed int, x f64, y f64, z f64) f64 
 	ys := y - y1
 	zs := z - z1
 
-	x1 *= noise.prime_x
-	y1 *= noise.prime_y
-	z1 *= noise.prime_z
+	x1 *= prime_x
+	y1 *= prime_y
+	z1 *= prime_z
 
-	x0 := x1 - noise.prime_x
-	y0 := y1 - noise.prime_y
-	z0 := z1 - noise.prime_z
-	x2 := x1 + noise.prime_x
-	y2 := y1 + noise.prime_y
-	z2 := z1 + noise.prime_z
-	x3 := x1 + int(noise.prime_x << 1)
-	y3 := y1 + int(noise.prime_y << 1)
-	z3 := z1 + int(noise.prime_z << 1)
+	x0 := x1 - prime_x
+	y0 := y1 - prime_y
+	z0 := z1 - prime_z
+	x2 := x1 + prime_x
+	y2 := y1 + prime_y
+	z2 := z1 + prime_z
+	x3 := x1 + int(prime_x << 1)
+	y3 := y1 + int(prime_y << 1)
+	z3 := z1 + int(prime_z << 1)
 
 	return cubic_lerp(cubic_lerp(cubic_lerp(val_coord_3(seed, x0, y0, z0), val_coord_3(seed,
 		x1, y0, z0), val_coord_3(seed, x2, y0, z0), val_coord_3(seed, x3, y0, z0), xs),
@@ -1459,10 +1447,10 @@ fn (fast FastNoiseLite) single_value_2(seed int, x f64, y f64) f64 {
 	xs := interp_hermite(x - x0)
 	ys := interp_hermite(y - y0)
 
-	x0 *= noise.prime_x
-	y0 *= noise.prime_y
-	x1 := x0 + noise.prime_x
-	y1 := y0 + noise.prime_y
+	x0 *= prime_x
+	y0 *= prime_y
+	x1 := x0 + prime_x
+	y1 := y0 + prime_y
 
 	xf0 := lerp(val_coord_2(seed, x0, y0), val_coord_2(seed, x1, y0), xs)
 	xf1 := lerp(val_coord_2(seed, x0, y1), val_coord_2(seed, x1, y1), xs)
@@ -1479,12 +1467,12 @@ fn (fast FastNoiseLite) single_value_3(seed int, x f64, y f64, z f64) f64 {
 	ys := interp_hermite(y - y0)
 	zs := interp_hermite(z - z0)
 
-	x0 *= noise.prime_x
-	y0 *= noise.prime_y
-	z0 *= noise.prime_z
-	x1 := x0 + noise.prime_x
-	y1 := y0 + noise.prime_y
-	z1 := z0 + noise.prime_z
+	x0 *= prime_x
+	y0 *= prime_y
+	z0 *= prime_z
+	x1 := x0 + prime_x
+	y1 := y0 + prime_y
+	z1 := z0 + prime_z
 
 	xf00 := lerp(val_coord_3(seed, x0, y0, z0), val_coord_3(seed, x1, y0, z0), xs)
 	xf10 := lerp(val_coord_3(seed, x0, y1, z0), val_coord_3(seed, x1, y1, z0), xs)
@@ -1567,7 +1555,7 @@ fn (fast FastNoiseLite) domain_warp_single_3(mut x &f64, mut y &f64, mut z &f64)
 fn (fast FastNoiseLite) transform_domain_warp_coordinate_2(mut x &f64, mut y &f64) {
 	match fast.m_domain_warp_type {
 		.open_simplex2, .open_simplex2_reduced {
-			t := (*x + *y) * noise.f2
+			t := (*x + *y) * f2
 			x += t
 			y += t
 		}
@@ -1594,7 +1582,7 @@ fn (fast FastNoiseLite) transform_domain_warp_coordinate_3(mut x &f64, mut y &f6
 			y += xz * 0.577350269189626
 		}
 		.default_open_simplex2 {
-			r := (*x + *y + *z) * noise.r3
+			r := (*x + *y + *z) * r3
 			x = r - *x
 			y = r - *y
 			z = r - *z
@@ -1646,10 +1634,10 @@ fn (fast FastNoiseLite) single_domain_warp_basic_grid_2(seed int, warp_amp f64, 
 	xs := interp_hermite(f64(xf - x0))
 	ys := interp_hermite(f64(yf - y0))
 
-	x0 *= noise.prime_x
-	y0 *= noise.prime_y
-	x1 := x0 + noise.prime_x
-	y1 := y0 + noise.prime_y
+	x0 *= prime_x
+	y0 *= prime_y
+	x1 := x0 + prime_x
+	y1 := y0 + prime_y
 
 	mut hash0 := hash_2(seed, x0, y0) & (255 << 1)
 	mut hash1 := hash_2(seed, x1, y0) & (255 << 1)
@@ -1680,12 +1668,12 @@ fn (fast FastNoiseLite) single_domain_warp_basic_grid_3(seed int, warp_amp f64, 
 	ys := interp_hermite(f64(yf - y0))
 	zs := interp_hermite(f64(zf - z0))
 
-	x0 *= noise.prime_x
-	y0 *= noise.prime_y
-	z0 *= noise.prime_z
-	x1 := x0 + noise.prime_x
-	y1 := y0 + noise.prime_y
-	z1 := z0 + noise.prime_z
+	x0 *= prime_x
+	y0 *= prime_y
+	z0 *= prime_z
+	x1 := x0 + prime_x
+	y1 := y0 + prime_y
+	z1 := z0 + prime_z
 
 	mut hash0 := hash_3(seed, x0, y0, z0) & (255 << 2)
 	mut hash1 := hash_3(seed, x1, y0, z0) & (255 << 2)
@@ -1740,12 +1728,12 @@ fn (fast FastNoiseLite) single_domain_warp_simplex_gradient(seed int, warp_amp f
 	xi := x - i
 	yi := y - j
 
-	t := (xi + yi) * noise.g2
+	t := (xi + yi) * g2
 	x0 := xi - t
 	y0 := yi - t
 
-	i *= noise.prime_x
-	j *= noise.prime_y
+	i *= prime_x
+	j *= prime_y
 
 	mut vx, mut vy := f64(0), f64(0)
 	mut xo, mut yo := f64(0), f64(0)
@@ -1762,46 +1750,44 @@ fn (fast FastNoiseLite) single_domain_warp_simplex_gradient(seed int, warp_amp f
 		vy += aaaa * yo
 	}
 
-	c := f64(2 * (1 - 2 * noise.g2) * (1 / noise.g2 - 2)) * t +
-		(f64(-2 * (1 - 2 * noise.g2) * (1 - 2 * noise.g2)) + a)
+	c := f64(2 * (1 - 2 * g2) * (1 / g2 - 2)) * t + (f64(-2 * (1 - 2 * g2) * (1 - 2 * g2)) + a)
 	if c > 0 {
-		x2 := x0 + (2 * noise.g2 - 1)
-		y2 := y0 + (2 * noise.g2 - 1)
+		x2 := x0 + (2 * g2 - 1)
+		y2 := y0 + (2 * g2 - 1)
 		cccc := (c * c) * (c * c)
 		if out_grad_only {
-			grad_coord_out_2(seed, i + noise.prime_x, j + noise.prime_y, mut xo, mut yo)
+			grad_coord_out_2(seed, i + prime_x, j + prime_y, mut xo, mut yo)
 		} else {
-			grad_coord_dual_2(seed, i + noise.prime_x, j + noise.prime_y, x2, y2, mut
-				xo, mut yo)
+			grad_coord_dual_2(seed, i + prime_x, j + prime_y, x2, y2, mut xo, mut yo)
 		}
 		vx += cccc * xo
 		vy += cccc * yo
 	}
 
 	if y0 > x0 {
-		x1 := x0 + noise.g2
-		y1 := y0 + (noise.g2 - 1)
+		x1 := x0 + g2
+		y1 := y0 + (g2 - 1)
 		b := 0.5 - x1 * x1 - y1 * y1
 		if b > 0 {
 			bbbb := (b * b) * (b * b)
 			if out_grad_only {
-				grad_coord_out_2(seed, i, j + noise.prime_y, mut xo, mut yo)
+				grad_coord_out_2(seed, i, j + prime_y, mut xo, mut yo)
 			} else {
-				grad_coord_dual_2(seed, i, j + noise.prime_y, x1, y1, mut xo, mut yo)
+				grad_coord_dual_2(seed, i, j + prime_y, x1, y1, mut xo, mut yo)
 			}
 			vx += bbbb * xo
 			vy += bbbb * yo
 		}
 	} else {
-		x1 := x0 + (noise.g2 - 1)
-		y1 := y0 + noise.g2
+		x1 := x0 + (g2 - 1)
+		y1 := y0 + g2
 		b := 0.5 - x1 * x1 - y1 * y1
 		if b > 0 {
 			bbbb := (b * b) * (b * b)
 			if out_grad_only {
-				grad_coord_out_2(seed, i + noise.prime_x, j, mut xo, mut yo)
+				grad_coord_out_2(seed, i + prime_x, j, mut xo, mut yo)
 			} else {
-				grad_coord_dual_2(seed, i + noise.prime_x, j, x1, y1, mut xo, mut yo)
+				grad_coord_dual_2(seed, i + prime_x, j, x1, y1, mut xo, mut yo)
 			}
 			vx += bbbb * xo
 			vy += bbbb * yo
@@ -1840,9 +1826,9 @@ fn (fast FastNoiseLite) single_domain_warp_open_simplex2_gradient(s int, warp_am
 	mut ay0 := y_n_sign * -y0
 	mut az0 := z_n_sign * -z0
 
-	i *= noise.prime_x
-	j *= noise.prime_y
-	k *= noise.prime_z
+	i *= prime_x
+	j *= prime_y
+	k *= prime_z
 
 	mut vx, mut vy, mut vz := f64(0), f64(0), f64(0)
 	mut xo, mut yo, mut zo := f64(0), f64(0), f64(0)
@@ -1872,15 +1858,15 @@ fn (fast FastNoiseLite) single_domain_warp_open_simplex2_gradient(s int, warp_am
 		if ax0 >= ay0 && ax0 >= az0 {
 			x1 += x_n_sign
 			b -= x_n_sign * 2 * x1
-			i1 -= x_n_sign * noise.prime_x
+			i1 -= x_n_sign * prime_x
 		} else if ay0 > ax0 && ay0 >= az0 {
 			y1 += y_n_sign
 			b -= y_n_sign * 2 * y1
-			j1 -= y_n_sign * noise.prime_y
+			j1 -= y_n_sign * prime_y
 		} else {
 			z1 += z_n_sign
 			b -= z_n_sign * 2 * z1
-			k1 -= z_n_sign * noise.prime_z
+			k1 -= z_n_sign * prime_z
 		}
 
 		if b > 0 {
@@ -1909,9 +1895,9 @@ fn (fast FastNoiseLite) single_domain_warp_open_simplex2_gradient(s int, warp_am
 
 		a += (0.75 - ax0) - (ay0 + az0)
 
-		i += (x_n_sign >> 1) & noise.prime_x
-		j += (y_n_sign >> 1) & noise.prime_y
-		k += (z_n_sign >> 1) & noise.prime_z
+		i += (x_n_sign >> 1) & prime_x
+		j += (y_n_sign >> 1) & prime_y
+		k += (z_n_sign >> 1) & prime_z
 
 		x_n_sign = -x_n_sign
 		y_n_sign = -y_n_sign
@@ -2007,10 +1993,10 @@ pub fn text_noise(c FastNoiseConfig, width int, height int, warp bool) {
 		for yy in 0 .. width {
 			mut x, mut y := f64(xx), f64(yy)
 			if warp {
-				mut fast2 := new_noise({
-					m_fractal_type:     ridged
-					m_octaves:          2
-					m_domain_warp_type: open_simplex2_reduced
+				mut fast2 := new_noise(FastNoiseConfig{
+					m_fractal_type: FractalType.ridged
+					m_octaves: 2
+					m_domain_warp_type: DomainWarpType.open_simplex2_reduced
 				})
 				fast2.domain_warp_2(mut x, mut y)
 			}
