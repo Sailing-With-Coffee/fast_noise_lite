@@ -1,6 +1,9 @@
 # fast_noise_lite
 A V implementation of  https://github.com/Auburn/FastNoiseLite
 
+> [!CAUTION]
+> This fork was made exclusively to fix the original code for use in Kadicon. I do not guarantee functionality with anything else !
+
 Do you want noise? Do you want it fast? Do you want it lite? Well you found it.
 
 ## Install
